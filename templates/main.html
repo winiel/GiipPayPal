@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+</head>
+
+<body>
+  <script
+    src="https://www.paypal.com/sdk/js?client-id=AfMF-kTW8J5xGLkMVVdl3ccrNA-F-eCr1aK30iYmgoYwl7w6r90ZzI14951FG7wCbGQ_ydhy89bmhjSR">
+  </script>
+  <div style="width:200px">
+    <div id="paypal-button-container"></div>
+  </div>
+
+
+ <script>
+  paypal.Buttons({
+    createOrder: function(data, actions) {
+      return actions.order.create({
+        purchase_units: [{
+          amount: {
+            value: '0.01'   //결재 금액
+          }
+        }]
+      });
+    },
+    onApprove: function(data, actions) {
+        console.log(data);
+        console.log(actions);
+      return actions.order.capture().then(function(details) {
+          console.log(details);
+        //결재완료 안내 팝업창
+        alert('Transaction completed by ' + details.payer.name.given_name);
+        // Call your server to save the transaction
+          // 결재 완료 후 다음 프로세서를 진행할 페이지 주소 : /paypal-transaction-complete
+        return fetch('/paypal-transaction-complete', {
+          method: 'post',
+          headers: {
+            'content-type': 'application/json'
+          },
+            accept:'*/*',
+          body: JSON.stringify({
+            orderID: data.orderID
+          })
+        });
+      });
+    }
+  }).render('#paypal-button-container');    //버튼을 표시할 id
+</script>
+</body>
